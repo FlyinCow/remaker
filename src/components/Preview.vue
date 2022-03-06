@@ -27,3 +27,9 @@ const md = computed(() => {
 <template>
     <div v-html="md" class="preview markdown-body"></div>
 </template>
+
+<style scoped>
+.preview {
+    flex-grow: 1;
+}
+</style>

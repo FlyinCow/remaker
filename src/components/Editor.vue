@@ -57,3 +57,9 @@ onMounted(() => {
 <template>
     <div class="editor" ref="editor"></div>
 </template>
+
+<style scoped>
+.editor {
+    flex-grow: 1;
+}
+</style>
