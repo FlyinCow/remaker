@@ -1,50 +1,43 @@
 import { defineStore } from "pinia";
 
-interface Note {
+export interface Note {
     title: string
-    tags: string[]
+    tags: Set<string>
     lines: string[]
 }
 
-const noteOption = {
+export const useCurrentNote = defineStore('currentNote', {
     state: (): Note => ({
         title: 'untitled',
         lines: [''],
-        tags: []
+        tags: new Set<string>()
     }),
     getters: {
         content: (state: Note): string => {
             return state.lines.join('\n')
         }
     }
-}
-
-export const useNote = (title: string) => {
-    return defineStore(`doc:${title}`, noteOption)
-}
-
-export const useCurrentNote = defineStore('doc:$current', noteOption)
-
-
-export const useNotePool = defineStore('documentTree', {
-    state: () => ({
-        notes: Array<Note>()
-    }),
-    getters: {
-        getTag: state => (tag: string) => state.notes.filter((note) => note.tags.includes(tag)),
-        all: state => state.notes.map((note) => useNote(note.title))
-    }
 })
 
 
-// for test
-export const useTestStore = defineStore('test', {
+export const useNoteStore = defineStore('documentTree', {
     state: () => ({
-        data: Array<string>()
+        notes: new Map<string, Note>()
     }),
     getters: {
-        content: (state): string => {
-            return state.data.join('\n')
+        all: state => [...state.notes.values()],
+        getTag() {
+            return (tag: string) => this.all.filter(note => [...note.tags].includes(tag))
+        },
+        tags() {
+            let tags = new Set<string>()
+            this.all.map(note => note.tags.forEach(tag => tags.add(tag)))
+            return tags
+        }
+    },
+    actions: {
+        addNote(note: Note) {
+            this.notes.set(note.title, note)
         }
     }
 })
