@@ -17,6 +17,7 @@ import NoteTree from './NoteTree.vue';
     height: 100vh;
     background-color: #323537;
     width: 240px;
+    flex-shrink: 0;
 }
 
 .menubar {

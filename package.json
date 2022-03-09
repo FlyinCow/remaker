@@ -18,15 +18,15 @@
     "@codemirror/theme-one-dark": "^0.19.1",
     "@codemirror/view": "^0.19.45",
     "github-markdown-css": "^5.1.0",
+    "monaco-editor": "^0.32.1",
+    "monaco-markdown": "^0.0.12",
     "pinia": "^2.0.11",
     "rehype-dom-stringify": "^3.0.1",
     "remark-gfm": "^3.0.1",
     "remark-parse": "^10.0.1",
     "remark-rehype": "^10.1.0",
     "unified": "^10.1.1",
-    "vite-plugin-windicss": "^1.8.1",
-    "vue": "^3.2.25",
-    "windicss": "^3.5.0"
+    "vue": "^3.2.25"
   },
   "devDependencies": {
     "@vitejs/plugin-vue": "^2.2.0",

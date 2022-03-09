@@ -31,5 +31,13 @@ const md = computed(() => {
 <style scoped>
 .preview {
     flex-grow: 1;
+    height: 100%;
+    width: 50%;
+}
+
+.preview:deep(*) {
+    width: 100%;
+    word-wrap: break-word;
+    word-break: break-all;
 }
 </style>
