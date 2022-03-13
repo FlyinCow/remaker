@@ -1,42 +1,31 @@
 <script lang="ts" setup>
-import { computed, reactive } from 'vue';
+import { storeToRefs } from 'pinia';
+import { computed, reactive, ref } from 'vue';
 import { useNoteStore } from '../store';
 import { Note } from '../store'
+// import { RouterLink } from 'vue-router'
 
-const notesStore = useNoteStore()
-const raw_notes = [{
-  title: 'note1',
-  content: "",
-  tags: ['tag1', 'tag2']
-}, {
-  title: 'note2',
-  content: "",
-  tags: ['tag2']
-}, {
-  title: 'note3',
-  content: "",
-  tags: []
-}]
-
-raw_notes.map(note => notesStore.notes.set(note.title, {
-  title: note.title,
-  content: note.content,
-  tags: new Set(note.tags)
-}))
-
-const tags = notesStore.tags
-const notetree = reactive(Array<{
+const noteStore = useNoteStore()
+const { currentNote, tags } = storeToRefs(noteStore)
+reactive(Array<{
   tag: string,
   collapsed: boolean
   notes: Note[]
 }>());
-[...tags.values()].map(tag => {
-  notetree.push({
-    tag: tag,
-    collapsed: false,
-    notes: notesStore.getTag(tag)
-  })
+
+const notetree = ref([...tags.value.values()].map(tag =>
+({
+  tag: tag,
+  collapsed: false,
+  notes: noteStore.getTag(tag)
+})))
+
+notetree.value.push({
+  tag: 'untaged',
+  collapsed: false,
+  notes: noteStore.getTag()
 })
+
 
 </script>
 
@@ -58,12 +47,18 @@ const notetree = reactive(Array<{
           <span class="tag">#{{ folder.tag }}</span>
         </a>
         <ul class="notes" v-show="!folder.collapsed">
-          <li v-for="note in folder.notes">
-            <a class="note-container">
+          <!-- <RouterLink v-for="note in folder.notes" :to="`/note/${note.title}`" custom> -->
+          <li
+            v-for="note in folder.notes"
+            :key="note.title"
+            @click="noteStore.setCurrentNote(note.title)"
+          >
+            <a class="note-container" :class="note.title == currentNote?.title ? `current` : ''">
               <span class="material-icons icon icon-file">insert_drive_file</span>
               <span class="note">{{ note.title }}</span>
             </a>
           </li>
+          <!-- </RouterLink> -->
         </ul>
       </li>
     </ul>
@@ -100,16 +95,13 @@ li a {
   height: 100vh;
 }
 
-.tag-container {
-  padding-left: 1.5em;
-}
-
 .note-container {
-  padding-left: 3rem;
+  padding-left: 1.5rem;
 }
 
 .note-container:hover,
-.tag-container:hover {
+.tag-container:hover,
+.current {
   background-color: #464b50;
 }
 

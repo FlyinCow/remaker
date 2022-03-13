@@ -1,9 +1,10 @@
 <script lang="ts" setup>
 import * as Monaco from 'monaco-editor'
 import editorWorker from 'monaco-editor/esm/vs/editor/editor.worker?worker'
-import { useCurrentNote } from '../store';
-import { onMounted, onUnmounted, ref } from 'vue';
-import { MonacoMarkdownExtension } from 'monaco-markdown'
+import { storeToRefs } from 'pinia';
+import { onMounted, onUnmounted, ref, watch, watchEffect } from 'vue';
+import { useNoteStore } from '../store';
+
 
 // enable monaco-editor's webwoker. @ts-ignore dosen't work for no reason
 (self as any).MonacoEnvironment = {
@@ -13,24 +14,27 @@ import { MonacoMarkdownExtension } from 'monaco-markdown'
 }
 
 const editor = ref()
-const currentNote = useCurrentNote()
+const noteStore = useNoteStore()
+
+const models: Record<string, Monaco.editor.ITextModel> = {}
+noteStore.all.map(note => models[note.title] = Monaco.editor.createModel(note.content, 'markdwon'))
+
+const { currentNote } = storeToRefs(noteStore)
 
 let editorInstance: Monaco.editor.IStandaloneCodeEditor;
 
 onMounted(() => {
-  editorInstance = Monaco.editor.create(editor.value, {
-    value: currentNote.content,
-    language: 'markdown',
-    automaticLayout: true,
-  })
+
+  editorInstance = Monaco.editor.create(editor.value)
 
   editorInstance.onDidChangeModelContent(() => {
-    currentNote.content = editorInstance.getValue()
+    if (currentNote.value)
+      currentNote.value.content = editorInstance.getValue()
   })
 
-  // TODO: fix compatibility issue
-  new MonacoMarkdownExtension().activate(editorInstance as any)
-
+  watch(currentNote, () => {
+    editorInstance.setModel(models[currentNote.value!.title])
+  })
 })
 
 onUnmounted(() => {

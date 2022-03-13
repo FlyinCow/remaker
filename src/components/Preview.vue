@@ -3,24 +3,35 @@ import { computed, toRefs } from 'vue';
 import { unified } from 'unified';
 import remarkParse from 'remark-parse'
 import remarkGfm from 'remark-gfm'
+import remarkMath from 'remark-math'
+import rehypeKatex from 'rehype-katex'
 import remarkRehype from 'remark-rehype'
 import rehypeDomStringfy from 'rehype-dom-stringify'
+import rehypeStringfy from 'rehype-stringify'
+import rehypeMathjax from 'rehype-mathjax'
 import 'github-markdown-css/github-markdown.css'
 
-import { useCurrentNote } from '../store';
+import { useNoteStore } from '../store';
+import { storeToRefs } from 'pinia';
+import { visit } from 'unist-util-visit';
 
-const content = useCurrentNote()
+const { currentNote } = storeToRefs(useNoteStore())
 
 const processor = unified()
     .use(remarkParse)
     .use(remarkGfm)
+    .use(remarkMath)
     .use(remarkRehype)
+    .use(rehypeMathjax)
     .use(rehypeDomStringfy)
 
-const md = computed(() => {
-    return processor.processSync(content.content).toString()
-})
+// const md = computed(() => {
+//     return processor.processSync(notes.value.get(currentNote.value)!.content).toString()
+// })
 
+const md = computed(() => {
+    return processor.processSync(currentNote.value ? currentNote.value.content : '').toString()
+})
 
 </script>
 
