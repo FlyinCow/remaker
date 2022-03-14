@@ -16,8 +16,8 @@ import NoteTree from './NoteTree.vue';
 .sidebar {
     height: 100vh;
     background-color: #323537;
-    width: 240px;
-    flex-shrink: 0;
+    flex-basis: 240px;
+    flex-grow: 0;
 }
 
 .menubar {

@@ -1,4 +1,3 @@
-import { assert } from "console";
 import { defineStore, storeToRefs } from "pinia";
 import { computed, Ref, ref } from "vue";
 
@@ -32,18 +31,20 @@ export const useNoteStore = defineStore('documentTree', () => {
 	)
 	)
 	const getTag = (tag?: string) => all.value.filter(note => tag ? [...note.tags].includes(tag) : note.tags.size == 0)
-	const has = notes.value.has
+	const has = (title: string) => notes.value.has(title)
 
 	const newNote = (title: string) => {
 		if (has(title)) {
-			title = 'new-' + title
+			title = title + '(new)'
 			newNote(title)
 		}
-		notes.value.set(title, {
-			title: title,
-			content: '',
-			tags: new Set()
-		})
+		else {
+			notes.value.set(title, {
+				title: title,
+				content: '',
+				tags: new Set()
+			})
+		}
 	}
 
 	return {

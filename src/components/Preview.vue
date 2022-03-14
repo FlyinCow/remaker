@@ -9,6 +9,8 @@ import remarkRehype from 'remark-rehype'
 import rehypeDomStringfy from 'rehype-dom-stringify'
 import rehypeStringfy from 'rehype-stringify'
 import rehypeMathjax from 'rehype-mathjax'
+import rehypeHighLight from 'rehype-highlight'
+import 'highlight.js/styles/github.css'
 import 'github-markdown-css/github-markdown.css'
 
 import { useNoteStore } from '../store';
@@ -18,11 +20,13 @@ import { visit } from 'unist-util-visit';
 const { currentNote } = storeToRefs(useNoteStore())
 
 const processor = unified()
+    .data('settings', { fragment: true })
     .use(remarkParse)
-    .use(remarkGfm)
-    .use(remarkMath)
+    // .use(remarkGfm)
+    // .use(remarkMath)
     .use(remarkRehype)
-    .use(rehypeMathjax)
+    // .use(rehypeMathjax)
+    .use(rehypeHighLight)
     .use(rehypeDomStringfy)
 
 // const md = computed(() => {
@@ -43,12 +47,20 @@ const md = computed(() => {
 .preview {
     flex-grow: 1;
     height: 100%;
-    width: 50%;
+    min-width: 50%;
+    box-sizing: border-box;
+    padding: 16px;
 }
 
 .preview:deep(*) {
     width: 100%;
     word-wrap: break-word;
     word-break: break-all;
+}
+</style>
+
+<style>
+pre {
+    box-sizing: border-box;
 }
 </style>
