@@ -40,7 +40,7 @@ const onNewNote = () => {
   noteStore.newNote(newNoteName.value)
   showNewNote.value = false
 }
-const newFileInput = ref<HTMLInputElement | null>(null)
+const newFileInput = ref()
 
 const foucusNewNoteInput = () => {
   console.log(newFileInput.value)

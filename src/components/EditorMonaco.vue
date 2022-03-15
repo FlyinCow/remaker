@@ -34,7 +34,8 @@ onMounted(() => {
     minimap: {
       enabled: false
     },
-    automaticLayout: true
+    automaticLayout: true,
+    wordWrap: 'on'
   })
 
   editorInstance.onDidChangeModelContent(() => {
