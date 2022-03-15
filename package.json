@@ -10,6 +10,7 @@
   "dependencies": {
     "@marp-team/marp-core": "^3.0.2",
     "@marp-team/marpit": "^2.2.2",
+    "@netlify/functions": "^1.0.0",
     "github-markdown-css": "^5.1.0",
     "highlight.js": "^11.5.0",
     "monaco-editor": "^0.32.1",

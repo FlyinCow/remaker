@@ -5,9 +5,7 @@ import NoteTree from './NoteTree.vue';
 
 <template>
     <div class="sidebar">
-        <div class="menubar">
-            <span class="material-icons menu icon">menu</span>
-        </div>
+        <a href="/.netlify/functions/hello"></a>
         <NoteTree />
     </div>
 </template>
