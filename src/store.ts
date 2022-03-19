@@ -1,6 +1,5 @@
 import { defineStore, storeToRefs } from "pinia";
 import { computed, Ref, ref } from "vue";
-
 export interface Note {
 	title: string
 	content: string
@@ -9,7 +8,19 @@ export interface Note {
 
 
 export const useNoteStore = defineStore('documentTree', () => {
-	const notes = ref(new Map<string, Note>())
+	const local = localStorage.getItem('notes')
+	let _notes = new Map<string, Note>()
+	if (local) {
+		let _notesobj = JSON.parse(local)
+		for (let title in _notesobj) {
+			_notes.set(title, {
+				title: title,
+				content: _notesobj[title]['content'],
+				tags: new Set<string>(_notesobj[title]['tags'])
+			})
+		}
+	}
+	const notes = ref<Map<string, Note>>(_notes)
 
 	const currentNote = ref<Note>({
 		title: '',
@@ -47,6 +58,27 @@ export const useNoteStore = defineStore('documentTree', () => {
 		}
 	}
 
+	const deleteNote = (title: string) => {
+
+	}
+	const toObject = () => {
+		let obj = {} as {
+			[title: string]: {
+				title: string,
+				content: string,
+				tags: string[]
+			},
+		}
+		notes.value.forEach((note, title) => {
+			obj[title] = {
+				title: note.title,
+				content: note.content,
+				tags: [...note.tags.values()]
+			}
+		})
+		return obj
+	}
+
 	return {
 		notes,
 		currentNote,
@@ -56,5 +88,6 @@ export const useNoteStore = defineStore('documentTree', () => {
 		getTag,
 		has,
 		newNote,
+		toObject
 	}
 });

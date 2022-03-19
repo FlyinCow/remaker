@@ -45,6 +45,7 @@ onMounted(() => {
 
   watch(currentNote, () => {
     editorInstance.setModel(models.value[currentNote.value!.title])
+    editorInstance.focus()
   })
 })
 

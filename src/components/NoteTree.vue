@@ -1,104 +1,103 @@
 <script lang="ts" setup>
 import { storeToRefs } from 'pinia';
-import { computed, onMounted, reactive, ref, watch, watchEffect } from 'vue';
+import { Directive, ref, watchEffect } from 'vue';
 import { useNoteStore } from '../store';
 import { Note } from '../store'
 // import { RouterLink } from 'vue-router'
 
+// display notes
 const noteStore = useNoteStore()
 const { currentNote, tags } = storeToRefs(noteStore)
-
-const notetree = ref(Array<{
-  tag: string,
-  collapsed: boolean
-  notes: Note[]
-}>());
+const notetree = ref<{
+  [tag: string]: {
+    collapsed: boolean,
+    notes: Note[]
+  }
+}>({});
 
 watchEffect(() => {
-  notetree.value.push({
-    tag: 'untagged',
-    collapsed: false,
-    notes: noteStore.getTag()
-  })
-  tags.value.forEach(tag => {
-    notetree.value.push({
-      tag: tag,
+  [undefined, ...tags.value].forEach(tag => {
+    notetree.value[tag ? tag : 'untagged'] = ({
       collapsed: false,
       notes: noteStore.getTag(tag)
     })
   })
 })
+const onRightclickNote = (note: Note) => console.log(note.title)
 
-
-
+// create note
 const newNoteName = ref('')
 const showNewNote = ref(false)
 
 const onNewNote = () => {
-  // alert(newNoteName.value)
-  console.log(newNoteName.value)
-  noteStore.newNote(newNoteName.value)
+  if (newNoteName.value !== '')
+    noteStore.newNote(newNoteName.value)
   showNewNote.value = false
 }
-const newFileInput = ref()
+const newNoteNameRef = ref<HTMLInputElement | null>(null)
 
-const foucusNewNoteInput = () => {
-  console.log(newFileInput.value)
-  newFileInput.value?.focus()
-
+const vAutofocusAndSelect = {
+  mounted: (el: HTMLInputElement) => {
+    el.focus()
+    el.select()
+  }
 }
 
-onMounted(() => {
-  watch(showNewNote, () => {
-    foucusNewNoteInput()
-  })
-})
+// right-click menu
 
 </script>
 
 <template>
-  <div class="note-tree">
-    <div class="toolbar">
+  <ul class="note-tree">
+    <ul class="toolbar">
       <span class="material-icons icon icon-search">search</span>
       <span class="material-icons icon icon-filter_list">filter_list</span>
       <span class="material-icons icon icon-note_add" @click="showNewNote = !showNewNote;">note_add</span>
-    </div>
-    <div>
+    </ul>
+    <ul>
       <input
         type="text"
         v-model="newNoteName"
+        placeholder="new note name"
         @keyup.enter="onNewNote"
-        v-show="showNewNote"
-        ref="newFileInput"
+        @keydown.escape="showNewNote = !showNewNote"
+        ref="newNoteNameRef"
+        v-if="showNewNote"
+        v-autofocus-and-select="1"
       />
-    </div>
+    </ul>
     <ul class="tags">
-      <li v-for="folder in notetree" :key="folder.tag">
+      <li v-for="folder, tag in notetree" :key="tag">
         <a class="tag-container" @click="folder.collapsed = !folder.collapsed">
           <span class="material-icons icon icon-fold-arrow">
             {{
               folder.collapsed ? "expand_more" : "expand_less"
             }}
           </span>
-          <span class="tag">#{{ folder.tag }}</span>
+          <span class="tag">#{{ tag }}</span>
         </a>
         <ul class="notes" v-show="!folder.collapsed">
           <!-- <RouterLink v-for="note in folder.notes" :to="`/note/${note.title}`" custom> -->
-          <li
-            v-for="note in folder.notes"
-            :key="note.title"
-            @click="noteStore.setCurrentNote(note.title)"
-          >
-            <a class="note-container" :class="note.title == currentNote?.title ? `current` : ''">
+          <li v-for="note in folder.notes" :key="note.title">
+            <a
+              class="note-container"
+              :class="note.title == currentNote?.title ? `current` : ''"
+              @click="noteStore.setCurrentNote(note.title)"
+              @contextmenu.prevent="onRightclickNote(note)"
+            >
               <span class="material-icons icon icon-file">insert_drive_file</span>
               <span class="note">{{ note.title }}</span>
             </a>
+            <ul class="note-contextmenu">
+              <li class="note-contextmenu-item">rename</li>
+              <li class="note-contextmenu-item">delete</li>
+            </ul>
           </li>
           <!-- </RouterLink> -->
         </ul>
       </li>
     </ul>
-  </div>
+  </ul>
 </template>
 
 <style scoped>

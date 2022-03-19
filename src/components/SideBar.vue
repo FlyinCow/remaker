@@ -1,11 +1,11 @@
 <script lang="ts" setup>
-import NoteTree from './NoteTree.vue';
+import NoteTree from './NoteTree.vue'
+
 
 </script>
 
 <template>
     <div class="sidebar">
-        <a href="/.netlify/functions/hello"></a>
         <NoteTree />
     </div>
 </template>
@@ -16,6 +16,7 @@ import NoteTree from './NoteTree.vue';
     background-color: #323537;
     flex-basis: 240px;
     flex-grow: 0;
+    position: relative;
 }
 
 .menubar {
