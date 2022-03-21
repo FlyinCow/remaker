@@ -19,11 +19,11 @@ onMounted(() => window.addEventListener(
   <!-- <input v-model="title" placeholder="untitled" /> -->
   <!-- <div class="wrapper"> -->
   <SideBar />
-  <div class="main-content">
+  <ul class="main-content">
     <EditorMonaco />
     <Preview />
     <!-- <Slide /> -->
-  </div>
+  </ul>
   <!-- </div> -->
 </template>
 

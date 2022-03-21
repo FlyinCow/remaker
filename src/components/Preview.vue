@@ -40,7 +40,7 @@ const md = computed(() => {
 </script>
 
 <template>
-    <div v-html="md" class="preview markdown-body"></div>
+    <ul v-html="md" class="preview markdown-body"></ul>
 </template>
 
 <style scoped>

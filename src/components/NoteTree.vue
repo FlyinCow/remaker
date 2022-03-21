@@ -1,8 +1,9 @@
 <script lang="ts" setup>
 import { storeToRefs } from 'pinia';
-import { Directive, ref, watchEffect } from 'vue';
+import { Directive, onBeforeUpdate, ref, watch, watchEffect, Ref, StyleValue, reactive, onMounted, onUnmounted } from 'vue';
 import { useNoteStore } from '../store';
 import { Note } from '../store'
+import { vClickOutside } from '../directives'
 // import { RouterLink } from 'vue-router'
 
 // display notes
@@ -23,13 +24,13 @@ watchEffect(() => {
     })
   })
 })
-const onRightclickNote = (note: Note) => console.log(note.title)
+
 
 // create note
 const newNoteName = ref('')
 const showNewNote = ref(false)
 
-const onNewNote = () => {
+function onNewNote() {
   if (newNoteName.value !== '')
     noteStore.newNote(newNoteName.value)
   showNewNote.value = false
@@ -44,6 +45,49 @@ const vAutofocusAndSelect = {
 }
 
 // right-click menu
+const showContextmenu = ref(false)
+const contextmenuPostion = ref<{ x: string, y: string }>({ x: '0', y: '0' })
+const noteRefs = ref<{
+  [title: string]: Ref<HTMLAnchorElement | null>
+}>({})
+
+onBeforeUpdate(() => {
+  noteRefs.value = {}
+})
+
+const rigthClickedNoteTitle = ref<string>()
+
+function onRightclickNote(e: MouseEvent, notetitle: string) {
+  rigthClickedNoteTitle.value = notetitle
+  showContextmenu.value = true
+  contextmenuPostion.value = {
+    x: `${e.clientX}px`,
+    y: `${e.clientY}px`
+  }
+}
+
+function closeContextmenuHandler() {
+  showContextmenu.value = false
+}
+
+onMounted(() => {
+  document.addEventListener('click', closeContextmenuHandler)
+  document.addEventListener('contextmenu', closeContextmenuHandler)
+})
+
+onUnmounted(() => {
+  document.removeEventListener('click', closeContextmenuHandler)
+  document.removeEventListener('contextmenu', closeContextmenuHandler)
+})
+
+function onClickDeleteNote() {
+  noteStore.deleteNote(rigthClickedNoteTitle.value)
+}
+
+function onClickRenameNote() {
+
+}
+
 
 </script>
 
@@ -67,6 +111,10 @@ const vAutofocusAndSelect = {
       />
     </ul>
     <ul class="tags">
+      <ul class="contextmenu" ref="contextmenu" v-show="showContextmenu">
+        <li class="contextmenu-item" @click="onClickRenameNote">rename</li>
+        <li class="contextmenu-item" @click="onClickDeleteNote">delete</li>
+      </ul>
       <li v-for="folder, tag in notetree" :key="tag">
         <a class="tag-container" @click="folder.collapsed = !folder.collapsed">
           <span class="material-icons icon icon-fold-arrow">
@@ -83,15 +131,16 @@ const vAutofocusAndSelect = {
               class="note-container"
               :class="note.title == currentNote?.title ? `current` : ''"
               @click="noteStore.setCurrentNote(note.title)"
-              @contextmenu.prevent="onRightclickNote(note)"
+              :ref="el => { if (el) noteRefs[note.title] = el as HTMLAnchorElement }"
+              @contextmenu.prevent.capture.stop="(e) => onRightclickNote(e, note.title)"
             >
               <span class="material-icons icon icon-file">insert_drive_file</span>
               <span class="note">{{ note.title }}</span>
             </a>
-            <ul class="note-contextmenu">
+            <!-- <ul class="note-contextmenu">
               <li class="note-contextmenu-item">rename</li>
               <li class="note-contextmenu-item">delete</li>
-            </ul>
+            </ul>-->
           </li>
           <!-- </RouterLink> -->
         </ul>
@@ -129,7 +178,8 @@ li > a {
 
 .tag,
 .note,
-.icon {
+.icon,
+.contextmenu-item {
   line-height: 1.2rem;
   color: #bcbcbc;
   user-select: none;
@@ -162,5 +212,16 @@ li > a {
 
 .toolbar > .icon:hover {
   background-color: #323537;
+}
+
+.contextmenu {
+  position: fixed;
+  left: v-bind("contextmenuPostion.x");
+  top: v-bind("contextmenuPostion.y");
+  background-color: #464b50;
+  color: #bcbcbc;
+}
+
+.contextmenu-item {
 }
 </style>

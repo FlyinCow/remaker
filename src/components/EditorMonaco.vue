@@ -56,7 +56,7 @@ onUnmounted(() => {
 </script>
 
 <template>
-  <div class="editor" ref="editorDom"></div>
+  <ul class="editor" ref="editorDom"></ul>
 </template>
 
 <style scoped>

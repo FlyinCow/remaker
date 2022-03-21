@@ -5,9 +5,9 @@ import NoteTree from './NoteTree.vue'
 </script>
 
 <template>
-    <div class="sidebar">
+    <ul class="sidebar">
         <NoteTree />
-    </div>
+    </ul>
 </template>
 
 <style scoped>

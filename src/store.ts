@@ -8,6 +8,7 @@ export interface Note {
 
 
 export const useNoteStore = defineStore('documentTree', () => {
+	// init from localstorage
 	const local = localStorage.getItem('notes')
 	let _notes = new Map<string, Note>()
 	if (local) {
@@ -22,29 +23,36 @@ export const useNoteStore = defineStore('documentTree', () => {
 	}
 	const notes = ref<Map<string, Note>>(_notes)
 
+	// current note
 	const currentNote = ref<Note>({
 		title: '',
 		content: '',
 		tags: new Set()
 	})
-	const setCurrentNote = (title: string) => {
+
+	function setCurrentNote(title: string) {
 		let cur = notes.value.get(title)
 		if (cur)
 			currentNote.value = cur
 	}
 
+	// filters
 	const all = computed(() => [...notes.value.values()])
 
 	const tags = computed(() => new Set(
 		all.value
 			.map(note => [...note.tags])
 			.reduce((pre, current) => pre.concat(current), [])
-	)
-	)
-	const getTag = (tag?: string) => all.value.filter(note => tag ? [...note.tags].includes(tag) : note.tags.size == 0)
-	const has = (title: string) => notes.value.has(title)
+	))
 
-	const newNote = (title: string) => {
+	function getTag(tag?: string) {
+		return all.value.filter(note => tag ? [...note.tags].includes(tag) : note.tags.size === 0)
+	}
+
+	function has(title: string) { return notes.value.has(title) }
+
+	const newNote = (title?: string) => {
+		title = title || 'new note'
 		if (has(title)) {
 			title = title + '(new)'
 			newNote(title)
@@ -58,10 +66,16 @@ export const useNoteStore = defineStore('documentTree', () => {
 		}
 	}
 
-	const deleteNote = (title: string) => {
-
+	function deleteNote(title?: string) {
+		if (!title || !has(title)) return
+		notes.value.delete(title)
 	}
-	const toObject = () => {
+
+	function renameNote() {
+	}
+
+
+	function toObject() {
 		let obj = {} as {
 			[title: string]: {
 				title: string,
@@ -88,6 +102,8 @@ export const useNoteStore = defineStore('documentTree', () => {
 		getTag,
 		has,
 		newNote,
+		deleteNote,
+		renameNote,
 		toObject
 	}
 });
